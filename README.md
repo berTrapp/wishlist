@@ -9,9 +9,15 @@ Lista de desejos de médio e longo prazo: cada produto aparece em 3D, com o pre�
 - **Novo desejo:** formulário manual que já abre a simulação; o modelo 3D entra numa fila e aparece quando fica pronto.
 - Dados de exemplo salvos no navegador (`src/data/sample.ts`).
 
+## Botão "Salvar na WishList" (fase 3)
+
+As lojas bloqueiam leitura de páginas vinda de servidores (Amazon 503, Magalu 403, Mercado Livre pede verificação), então a captura roda no navegador da pessoa: um favorito (`src/lib/bookmarklet.ts`) lê nome, foto e preço da página do produto e abre `/salvar` no app. Dali o produto vira um desejo novo ou entra na comparação de um desejo que já existe. Instruções em `/botao`.
+
+`supabase/functions/read-product` fica para a leitura pelas APIs oficiais (Mercado Livre e Shopee), que precisam de credenciais.
+
 ## Stack
 
-React 19 + TypeScript + Vite, React Three Fiber (Three.js), React Router. Supabase entra na fase 2.
+React 19 + TypeScript + Vite, React Three Fiber (Three.js), React Router. Supabase (Auth, Postgres com RLS, Edge Functions).
 
 ## Rodando
 
@@ -23,6 +29,6 @@ npm run dev
 ## Próximas fases
 
 1. ~~Base visual com dados de exemplo~~
-2. Conta e dados: login com e-mail e Google, banco no Supabase, depósitos e simulação salvos
+2. ~~Conta e dados~~: login com e-mail e Google, banco no Supabase, depósitos e simulação salvos
 3. Preços: busca automática em Amazon, Mercado Livre, Shopee, Magazine Luiza e TikTok Shop; modelos 3D gerados por produto
 4. PWA e vitrine: instalável, notificações, modo demonstração

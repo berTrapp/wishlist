@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react'
 import { BrowserRouter, MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router'
 import { AddWishDialog } from './components/AddWishDialog'
 import { Header } from './components/Header'
+import { clearCaptured, peekCaptured, type Captured } from './lib/bookmarklet'
 import { supabase } from './lib/supabase'
+import { Bookmarklet } from './pages/Bookmarklet'
 import { Home } from './pages/Home'
 import { Item } from './pages/Item'
 import { LegalLinks, Privacy, Terms } from './pages/Legal'
@@ -26,10 +28,16 @@ interface ShellProps {
 }
 
 function Shell({ email, onSignIn, onSignOut }: ShellProps) {
-  const [adding, setAdding] = useState(false)
-  const { mode, addWish, loadExamples, error, dismissError } = useWishes()
+  const [captured, setCaptured] = useState<Captured | null>(peekCaptured)
+  const [adding, setAdding] = useState(captured !== null)
+  const { mode, wishes, addWish, saveOffer, loadExamples, error, dismissError } = useWishes()
   const navigate = useNavigate()
   const open = () => setAdding(true)
+  const close = () => {
+    setAdding(false)
+    setCaptured(null)
+    clearCaptured()
+  }
 
   return (
     <>
@@ -46,6 +54,7 @@ function Shell({ email, onSignIn, onSignOut }: ShellProps) {
       <Routes>
         <Route path="/" element={<Home onAdd={open} />} />
         <Route path="/item/:id" element={<Item />} />
+        <Route path="/botao" element={<Bookmarklet />} />
         <Route path="*" element={<Home onAdd={open} />} />
       </Routes>
       <footer className="foot small">
@@ -65,14 +74,25 @@ function Shell({ email, onSignIn, onSignOut }: ShellProps) {
       </footer>
       <AddWishDialog
         open={adding}
-        onClose={() => setAdding(false)}
+        captured={captured}
+        wishes={wishes}
+        onClose={close}
         onSubmit={async (w) => {
           try {
             const id = await addWish(w)
-            setAdding(false)
+            close()
             navigate(`/item/${id}`)
           } catch (e) {
             return e instanceof Error ? e.message : 'Não foi possível salvar o desejo.'
+          }
+        }}
+        onSubmitOffer={async (wishId, o) => {
+          try {
+            await saveOffer(wishId, o)
+            close()
+            navigate(`/item/${wishId}`)
+          } catch (e) {
+            return e instanceof Error ? e.message : 'Não foi possível salvar o preço.'
           }
         }}
       />

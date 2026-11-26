@@ -22,6 +22,7 @@ interface WishRow {
   priority: Priority
   notes: string
   shape: Shape
+  image_url: string | null
   model_status: ModelStatus
   reserve_pct: number
   created_at: string
@@ -54,6 +55,7 @@ function toWish(r: WishRow): Wish {
     priority: r.priority,
     notes: r.notes,
     shape: r.shape,
+    imageUrl: r.image_url ?? undefined,
     modelStatus: r.model_status,
     reservePct: r.reserve_pct,
     createdAt: r.created_at.slice(0, 10),
@@ -70,7 +72,7 @@ export async function fetchAll(db: SupabaseClient, userId: string): Promise<{ pr
     db
       .from('wishes')
       .select(
-        'id, name, short, category, priority, notes, shape, model_status, reserve_pct, created_at, offers(id, store, url, card, pix, shipping, interest_free_installments, updated_at, price_history(price, recorded_at)), deposits(id, amount, deposited_at, note)',
+        'id, name, short, category, priority, notes, shape, image_url, model_status, reserve_pct, created_at, offers(id, store, url, card, pix, shipping, interest_free_installments, updated_at, price_history(price, recorded_at)), deposits(id, amount, deposited_at, note)',
       )
       .eq('status', 'active')
       .order('created_at'),
@@ -115,6 +117,7 @@ export async function insertWish(db: SupabaseClient, w: Omit<Wish, 'id' | 'creat
       priority: w.priority,
       notes: w.notes,
       shape: w.shape,
+      image_url: w.imageUrl ?? null,
       model_status: w.modelStatus,
       reserve_pct: w.reservePct,
     })
@@ -150,4 +153,22 @@ export async function insertWish(db: SupabaseClient, w: Omit<Wish, 'id' | 'creat
     if (e3) throw e3
   }
   return wish.id
+}
+
+/** Grava o preço de uma loja num desejo: cria a oferta ou atualiza a existente, e anota no histórico */
+export async function upsertOffer(db: SupabaseClient, wishId: string, o: { store: StoreName; url: string; price: number }) {
+  const { data: existing, error: e0 } = await db.from('offers').select('id').eq('wish_id', wishId).eq('store', o.store).maybeSingle()
+  if (e0) throw e0
+  const fields = { url: o.url, card: o.price, pix: o.price, updated_at: new Date().toISOString() }
+  let offerId = existing?.id as string | undefined
+  if (offerId) {
+    const { error } = await db.from('offers').update(fields).eq('id', offerId)
+    if (error) throw error
+  } else {
+    const { data, error } = await db.from('offers').insert({ wish_id: wishId, store: o.store, shipping: 0, interest_free_installments: 1, ...fields }).select('id').single()
+    if (error) throw error
+    offerId = data.id
+  }
+  const { error: e2 } = await db.from('price_history').insert({ offer_id: offerId, price: o.price })
+  if (e2) throw e2
 }

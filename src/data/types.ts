@@ -30,6 +30,8 @@ export interface Wish {
   priority: Priority
   notes: string
   shape: Shape
+  /** Foto do produto na loja, quando veio pelo botão "Salvar na WishList" */
+  imageUrl?: string
   modelStatus: ModelStatus
   /** Quanto da sobra mensal vai para este item, em % */
   reservePct: number
