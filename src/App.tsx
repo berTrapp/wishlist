@@ -5,6 +5,7 @@ import { Header } from './components/Header'
 import { supabase } from './lib/supabase'
 import { Home } from './pages/Home'
 import { Item } from './pages/Item'
+import { LegalLinks, Privacy, Terms } from './pages/Legal'
 import { Login } from './pages/Login'
 import { getDemoChoice, setDemoChoice, useSession } from './state/Auth'
 import { WishProvider, useWishes } from './state/WishStore'
@@ -60,6 +61,7 @@ function Shell({ email, onSignIn, onSignOut }: ShellProps) {
         ) : (
           <p>Preços de exemplo até a busca automática nas lojas ficar pronta.</p>
         )}
+        <LegalLinks />
       </footer>
       <AddWishDialog
         open={adding}
@@ -126,7 +128,12 @@ const Router = import.meta.env.VITE_ROUTER === 'memory' ? MemoryRouter : Browser
 export default function App() {
   return (
     <Router>
-      <Gate />
+      <Routes>
+        {/* Páginas públicas, abertas sem login (o Google exige para a tela de consentimento) */}
+        <Route path="/privacidade" element={<Privacy />} />
+        <Route path="/termos" element={<Terms />} />
+        <Route path="*" element={<Gate />} />
+      </Routes>
     </Router>
   )
 }
