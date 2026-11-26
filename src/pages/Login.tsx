@@ -1,3 +1,4 @@
+import { LegalLinks } from './Legal'
 import { useState } from 'react'
 import { LogoMark } from '../components/Logo'
 import { supabase } from '../lib/supabase'
@@ -101,6 +102,7 @@ export function Login({ onDemo }: { onDemo: () => void }) {
           Ver demonstração sem conta
         </button>
       </section>
+      <LegalLinks />
     </main>
   )
 }
