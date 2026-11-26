@@ -17,7 +17,7 @@ const PRIOS: { v: Priority | 'all'; label: string }[] = [
 ]
 
 export function Home({ onAdd }: { onAdd: () => void }) {
-  const { wishes, profile, setSurplus } = useWishes()
+  const { wishes, profile, setSurplus, loading, loadExamples, mode } = useWishes()
   const surplus = profile.monthlySurplus
   const [prio, setPrio] = useState<Priority | 'all'>('all')
   const [cat, setCat] = useState('all')
@@ -31,6 +31,41 @@ export function Home({ onAdd }: { onAdd: () => void }) {
     .sort((a, b) =>
       sort === 'near' ? monthsLeft(a, surplus) - monthsLeft(b, surplus) : sort === 'cheap' ? bestPrice(a) - bestPrice(b) : priceTrend(a) - priceTrend(b),
     )
+
+  if (loading) {
+    return (
+      <main className="page">
+        <div className="skeleton skeleton--tall" />
+        <div className="home-top">
+          <div className="skeleton" />
+          <div className="skeleton" />
+        </div>
+      </main>
+    )
+  }
+
+  if (wishes.length === 0) {
+    return (
+      <main className="page">
+        <section className="panel empty">
+          <p className="eyebrow">Sua lista está vazia</p>
+          <h1>Qual é o próximo desejo?</h1>
+          <p className="muted">
+            Adicione um produto e a WishList mostra quando ele cabe no seu bolso, quanto pesa na sua sobra do mês e em qual loja sai mais barato.
+          </p>
+          <div className="empty__actions">
+            <button className="btn btn--accent" onClick={onAdd}>
+              + Adicionar desejo
+            </button>
+            <button className="btn" onClick={loadExamples}>
+              {mode === 'cloud' ? 'Carregar exemplos na minha conta' : 'Restaurar exemplos'}
+            </button>
+          </div>
+        </section>
+        <MonthSummary surplus={surplus} wishes={wishes} onSurplus={setSurplus} />
+      </main>
+    )
+  }
 
   return (
     <main className="page">
