@@ -20,6 +20,8 @@ export interface NewWish {
   priority: Wish['priority']
   store: StoreName
   price: number
+  url?: string
+  imageUrl?: string
 }
 
 interface Store {
@@ -32,6 +34,8 @@ interface Store {
   setReserve: (id: string, pct: number) => void
   addDeposit: (id: string, amount: number) => Promise<void>
   addWish: (w: NewWish) => Promise<string>
+  /** Coloca o preço de uma loja num desejo que já existe */
+  saveOffer: (wishId: string, o: { store: StoreName; url: string; price: number }) => Promise<void>
   /** Demo: volta aos exemplos. Cloud: grava os exemplos na conta. */
   loadExamples: () => Promise<void>
   dismissError: () => void
@@ -67,10 +71,11 @@ function newWishFrom(n: NewWish): Omit<Wish, 'id' | 'createdAt'> {
     priority: n.priority,
     notes: '',
     shape: guessShape(n.category, n.name),
+    imageUrl: n.imageUrl,
     modelStatus: 'queued',
     reservePct: 20,
     deposits: [],
-    offers: [{ store: n.store, url: '', card: n.price, pix: n.price, shipping: 0, interestFreeInstallments: 1, updatedAt: today, history: [n.price] }],
+    offers: [{ store: n.store, url: n.url ?? '', card: n.price, pix: n.price, shipping: 0, interestFreeInstallments: 1, updatedAt: today, history: [n.price] }],
   }
 }
 
@@ -181,6 +186,29 @@ export function WishProvider({ mode, userId, children }: { mode: Mode; userId?: 
     [db, reload],
   )
 
+  const saveOffer = useCallback(
+    async (wishId: string, o: { store: StoreName; url: string; price: number }) => {
+      if (db) {
+        await remote.upsertOffer(db, wishId, o)
+        await reload()
+        return
+      }
+      const today = new Date().toISOString().slice(0, 10)
+      setState((s) => ({
+        ...s,
+        wishes: s.wishes.map((w) => {
+          if (w.id !== wishId) return w
+          const old = w.offers.find((x) => x.store === o.store)
+          const offer = old
+            ? { ...old, url: o.url, card: o.price, pix: o.price, updatedAt: today, history: [...old.history, o.price] }
+            : { store: o.store, url: o.url, card: o.price, pix: o.price, shipping: 0, interestFreeInstallments: 1, updatedAt: today, history: [o.price] }
+          return { ...w, offers: old ? w.offers.map((x) => (x === old ? offer : x)) : [...w.offers, offer] }
+        }),
+      }))
+    },
+    [db, reload],
+  )
+
   const loadExamples = useCallback(async () => {
     if (!db) {
       setState({ profile: sampleProfile, wishes: sampleWishes })
@@ -196,8 +224,8 @@ export function WishProvider({ mode, userId, children }: { mode: Mode; userId?: 
   }, [db, reload, fail])
 
   const value = useMemo<Store>(
-    () => ({ mode, loading, error, ...state, setSurplus, setReserve, addDeposit, addWish, loadExamples, dismissError: () => setError(null) }),
-    [mode, loading, error, state, setSurplus, setReserve, addDeposit, addWish, loadExamples],
+    () => ({ mode, loading, error, ...state, setSurplus, setReserve, addDeposit, addWish, saveOffer, loadExamples, dismissError: () => setError(null) }),
+    [mode, loading, error, state, setSurplus, setReserve, addDeposit, addWish, saveOffer, loadExamples],
   )
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }

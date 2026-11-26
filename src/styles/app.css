@@ -1532,3 +1532,16 @@ select {
 .legal-links { display: flex; gap: 18px; justify-content: center; margin-top: 18px; }
 .legal-links a { color: var(--muted, inherit); }
 .legal-links a:hover { color: var(--data); }
+
+/* Botão "Salvar na WishList" */
+.dialog__tip a { color: var(--data); }
+.captured { display: flex; gap: 14px; align-items: center; padding: 12px; border: 1px solid var(--line, rgba(255,255,255,.1)); border-radius: 14px; background: var(--data-soft); }
+.captured img, .captured__noimg { width: 72px; height: 72px; flex: none; border-radius: 10px; object-fit: contain; background: #fff; }
+.captured__noimg { background: rgba(255,255,255,.06); }
+.captured > div { min-width: 0; display: grid; gap: 4px; justify-items: start; }
+.captured__name { margin: 0; font-size: .92rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.bm__hero h1 { margin: 4px 0 10px; }
+.bm__drag { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 18px; }
+.bm__button { display: inline-flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 999px; border: 1px dashed var(--data); background: var(--data-soft); color: inherit; text-decoration: none; cursor: grab; font-weight: 600; }
+.foot .legal-links { margin-top: 0; }
+.bm__steps { padding-left: 20px; display: grid; gap: 8px; line-height: 1.55; }

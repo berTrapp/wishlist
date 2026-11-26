@@ -22,6 +22,7 @@ export function Header({ onAdd, email, onSignIn, onSignOut }: Props) {
             </NavLink>
             <Link to={{ pathname: '/', hash: 'linha-do-tempo' }}>Planejamento</Link>
             <Link to={{ pathname: '/', hash: 'alertas' }}>Alertas</Link>
+            <NavLink to="/botao">Botão Salvar</NavLink>
           </nav>
           <div className="topbar__actions">
             <button className="btn btn--accent topbar__add" onClick={onAdd}>
