@@ -6,12 +6,13 @@ const STORES: StoreName[] = ['Amazon', 'Mercado Livre', 'Shopee', 'Magazine Luiz
 interface Props {
   open: boolean
   onClose: () => void
-  onSubmit: (w: { name: string; category: string; priority: Priority; store: StoreName; price: number }) => void
+  onSubmit: (w: { name: string; category: string; priority: Priority; store: StoreName; price: number }) => Promise<string | void>
 }
 
 export function AddWishDialog({ open, onClose, onSubmit }: Props) {
   const ref = useRef<HTMLDialogElement>(null)
   const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
 
   useEffect(() => {
     const d = ref.current
@@ -25,22 +26,26 @@ export function AddWishDialog({ open, onClose, onSubmit }: Props) {
       <form
         method="dialog"
         className="dialog__form"
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault()
-          const f = new FormData(e.currentTarget)
+          const form = e.currentTarget
+          const f = new FormData(form)
           const name = String(f.get('name') || '').trim()
           const price = parseFloat(String(f.get('price') || '').replace(/\./g, '').replace(',', '.'))
           if (!name) return setError('Dê um nome ao desejo.')
           if (!(price > 0)) return setError('Informe o preço, por exemplo 2.199,90.')
           setError('')
-          onSubmit({
+          setBusy(true)
+          const err = await onSubmit({
             name,
             category: String(f.get('category') || ''),
             priority: f.get('priority') as Priority,
             store: f.get('store') as StoreName,
             price,
           })
-          e.currentTarget.reset()
+          setBusy(false)
+          if (err) return setError(err)
+          form.reset()
         }}
       >
         <header className="dialog__head">
@@ -99,8 +104,8 @@ export function AddWishDialog({ open, onClose, onSubmit }: Props) {
           <button type="button" className="btn" onClick={onClose}>
             Cancelar
           </button>
-          <button type="submit" className="btn btn--accent">
-            Adicionar e simular
+          <button type="submit" className="btn btn--accent" disabled={busy}>
+            {busy ? 'Salvando…' : 'Adicionar e simular'}
           </button>
         </footer>
       </form>

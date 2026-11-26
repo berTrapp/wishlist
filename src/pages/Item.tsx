@@ -24,13 +24,14 @@ import { useWishes } from '../state/WishStore'
 
 export function Item() {
   const { id } = useParams()
-  const { wishes, profile, setReserve, addDeposit } = useWishes()
+  const { wishes, profile, setReserve, addDeposit, loading } = useWishes()
   const wish = wishes.find((w) => w.id === id)
   const surplus = profile.monthlySurplus
   const [depositOpen, setDepositOpen] = useState(false)
   const [depositValue, setDepositValue] = useState('')
   const animPrice = useCountUp(wish ? bestPrice(wish) : 0)
 
+  if (!wish && loading) return <main className="page"><div className="skeleton skeleton--tall" /></main>
   if (!wish) {
     return (
       <main className="page">
@@ -133,11 +134,11 @@ export function Item() {
           {depositOpen ? (
             <form
               className="deposit"
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault()
                 const v = parseFloat(depositValue.replace(/\./g, '').replace(',', '.'))
                 if (v > 0) {
-                  addDeposit(wish.id, v)
+                  await addDeposit(wish.id, v)
                   setDepositValue('')
                   setDepositOpen(false)
                 }

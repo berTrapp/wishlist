@@ -1,7 +1,14 @@
 import { Link, NavLink } from 'react-router'
 import { Logo } from './Logo'
 
-export function Header({ onAdd }: { onAdd: () => void }) {
+interface Props {
+  onAdd: () => void
+  email?: string
+  onSignIn?: () => void
+  onSignOut?: () => void
+}
+
+export function Header({ onAdd, email, onSignIn, onSignOut }: Props) {
   return (
     <>
       <header className="topbar">
@@ -16,9 +23,27 @@ export function Header({ onAdd }: { onAdd: () => void }) {
             <Link to={{ pathname: '/', hash: 'linha-do-tempo' }}>Planejamento</Link>
             <Link to={{ pathname: '/', hash: 'alertas' }}>Alertas</Link>
           </nav>
-          <button className="btn btn--accent topbar__add" onClick={onAdd}>
-            <span aria-hidden="true">+</span> Adicionar desejo
-          </button>
+          <div className="topbar__actions">
+            <button className="btn btn--accent topbar__add" onClick={onAdd}>
+              <span aria-hidden="true">+</span> Adicionar desejo
+            </button>
+            {email && onSignOut && (
+              <details className="account">
+                <summary aria-label={`Conta: ${email}`}>{email.slice(0, 1).toUpperCase()}</summary>
+                <div className="account__menu">
+                  <span className="small muted">{email}</span>
+                  <button className="btn btn--block" onClick={onSignOut}>
+                    Sair
+                  </button>
+                </div>
+              </details>
+            )}
+            {onSignIn && (
+              <button className="btn" onClick={onSignIn}>
+                Entrar
+              </button>
+            )}
+          </div>
         </div>
       </header>
 
