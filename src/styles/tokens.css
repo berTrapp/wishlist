@@ -1,0 +1,33 @@
+/* Tokens da WishList. Tema escuro único, de propósito: laranja = preço, verde-água = dinheiro guardado. */
+:root {
+  --bg: #0c1214;
+  --surface: #131c1f;
+  --surface-2: #1a2629;
+  --line: #24343a;
+  --line-strong: #35505a;
+  --fg: #e8efee;
+  --muted: #8ba09f;
+
+  --accent: #ff6a3d;
+  --accent-soft: rgba(255, 106, 61, 0.16);
+  --accent-ink: #1a0b05;
+  --data: #4fd8c4;
+  --data-soft: rgba(79, 216, 196, 0.14);
+
+  --good: #7be38a;
+  --warn: #ffc65c;
+  --bad: #ff6b7a;
+
+  --f-display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --f-body: 'Manrope', 'Segoe UI', system-ui, sans-serif;
+  --f-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  --r-sm: 10px;
+  --r: 14px;
+  --r-lg: 18px;
+  --gutter: max(16px, env(safe-area-inset-left, 0px));
+  --gutter-r: max(16px, env(safe-area-inset-right, 0px));
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  color-scheme: dark;
+}
